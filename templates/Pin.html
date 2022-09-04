@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for("static", filename="Pin.css") }}">
+    <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-1b93190375e9ccc259df3a57c1abc0e64599724ae30d7ea4c6877eb615f89387.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+    <script id="rendered-js">
+        const pinWrapper = document.querySelector('.pin-wrapper'),
+
+        input = pinWrapper.querySelector('.focus'),
+        digits = Array.from(pinWrapper.querySelectorAll('.digit')),
+        caret = pinWrapper.querySelector('.caret'),
+        button = pinWrapper.querySelector('.submit'),
+        mainEl = document.querySelector('main');
+
+        let currentIndex = 0;
+        let prevLeft = 0;
+        let prevX = 0;
+        let inputLock = false;
+
+        function moveCaret(newWidth, newLeft, duration=350) {
+          anime({
+            targets: caret,
+            width: newWidth,
+            left: newLeft,
+            easing: 'easeInOutQuad',
+            duration: duration,
+            begin: () => {
+              caret.classList.remove('blink');
+            },
+            complete: () => {
+              caret.classList.add('blink');
+            } });
+        }
+
+        input.oninput = e => {
+          var copy = false
+          this.value = "";
+          var digit = parseInt(e.data)
+          if (isNaN(digit) && e.detail.copy){
+              digit = parseInt(e.detail.data)
+              copy = true
+          }
+          if (!isNaN(digit) && !inputLock && currentIndex <= digits.length - 1){
+            if (!copy) {
+                inputLock=true;
+            }
+            let left, x, newWidth, newLeft;
+
+            if (currentIndex < digits.length - 1) {
+              x = digits[currentIndex + 1].offsetLeft;
+              left = x + (digits[currentIndex + 1].offsetWidth - 4) / 2;
+
+              newWidth = [
+              { value: x - prevX + 5 },
+              { value: 4 }];
+
+              newLeft = [
+              { value: prevLeft },
+              { value: left }];
+
+            } else
+
+            if (currentIndex === digits.length - 1) {
+              x = 100;
+              left = pinWrapper.offsetWidth;
+              newWidth = [
+              { value: x },
+              { value: 70 }];
+
+              newLeft = [
+              { value: prevLeft },
+              { value: left }];
+
+              x = pinWrapper.offsetWidth;
+            }
+
+            if (currentIndex === digits.length-1) {
+                if (copy){
+                    moveCaret(newWidth, newLeft, 400);
+                    setTimeout(() => {
+                      caret.style.display = "none"
+                    }, 400);
+                }
+                else {
+                    moveCaret(newWidth, newLeft, 0);
+                    caret.style.display = "none"
+                }
+            }
+            else {
+                caret.style.display = "block"
+                moveCaret(newWidth, newLeft, 300);
+            }
+
+            prevLeft = left;
+            prevX = x;
+
+            digits[currentIndex].dataset.digit = digit;
+            digits[currentIndex].classList.add('shown');
+            currentIndex++;
+            setTimeout(() => {
+              inputLock = false
+              if (currentIndex === digits.length) {
+
+                mainEl.classList.add('show-button');
+
+              }
+            }, 250);
+
+          }
+        };
+
+        input.onkeydown = e => {
+            if (e.key === "Backspace" && !inputLock && currentIndex !== 0) {
+                inputLock = true;
+                currentIndex--;
+
+                let x = digits[currentIndex].offsetLeft;
+                let left = x + (digits[currentIndex].offsetWidth - 4) / 2;
+
+                let newWidth = [
+                    { value: prevX - x + 5 },
+                    { value: 4 }],
+
+                newLeft = [
+                    { value: left },
+                    { value: left }];
+
+                moveCaret(newWidth, newLeft);
+
+                prevLeft = left;
+                prevX = x;
+
+                digits[currentIndex].classList.remove('shown');
+                setTimeout(() => {
+                  digits[currentIndex].dataset.digit = "";
+                  inputLock = false;
+                  mainEl.classList.remove('show-button');
+                  caret.style.display = "block"
+                }, 250);
+            }
+            if (currentIndex===6){
+                if(e.key === "Enter" && !inputLock){
+                    submit()
+                }
+            }
+        };
+
+        input.onfocus = e => {
+          if (!currentIndex) {
+            inputLock = true;
+            let x = digits[0].offsetLeft;
+            let left = x + (digits[currentIndex].offsetWidth - 4) / 2;
+
+            let newWidth = [
+            { value: left + 5 },
+            { value: 4 }],
+
+            newLeft = [
+            { value: 0 },
+            { value: left }];
+
+            moveCaret(newWidth, newLeft, 300);
+
+            prevLeft = left;
+            prevX = x;
+            setTimeout(() => {inputLock = false;}, 250);
+          }
+        };
+
+        input.onblur = e => {
+          if (!currentIndex) {
+            let q = digits[0].offsetLeft;
+            let left = q + (digits[currentIndex].offsetWidth - 4) / 2;
+
+            let newWidth = [
+            { value: left + 5 },
+            { value: 0 }],
+
+            newLeft = [
+            { value: 0 },
+            { value: 0 }];
+
+            moveCaret(newWidth, newLeft, 300);
+            caret.style.display = "block"
+          }
+        };
+
+        input.addEventListener("paste", (event) => {
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+            if (isNaN(parseInt(paste))){
+                alert("Wrong format");
+            }
+            else {
+                for (let n of paste){
+                    input.dispatchEvent(new CustomEvent('input', {detail: {data: n, copy: true}}));
+                }
+            }
+        })
+
+        function submit() {
+            let downloadPin = digits.map(el => {
+                return el.dataset.digit
+            }).join('');
+            inputLock = true;
+            try {
+                fetch('/download/'+downloadPin)
+                    .then(response => {
+                        if (!response.ok) {
+                            document.getElementById("EnterPin").style.display = "none"
+                            document.getElementById("pin-wrapper").style.display = "none"
+                            document.getElementById("message").style.display = "flex"
+                            document.getElementById("back").innerHTML = "Try Again"
+                            document.getElementById("message_text").innerHTML = "<p style='font-weight: bolder; font-size: 23px'>File not found.</p> <p style='font-size: 15px'>Please check the file pin and try again</p>"
+                            let myBlob = new Blob();
+                            let init = { "status" : response.status , "statusText" : "SuperSmashingGreat!" };
+                            return new Response(myBlob,init)
+                        }
+
+                        if (!response.body) {
+                            throw Error('ReadableStream not yet supported in this browser.')
+                        }
+
+                        // to access headers, server must send CORS header "Access-Control-Expose-Headers: content-encoding, content-length x-file-size"
+                        // server must send custom x-file-size header if gzip or other content-encoding is used
+                        const contentEncoding = response.headers.get('content-encoding');
+                        const contentLength = response.headers.get(contentEncoding ? 'x-file-size' : 'content-length');
+                        if (contentLength === null) {
+                            throw Error('Response size header unavailable');
+                        }
+
+                        const total = parseInt(contentLength, 10);
+                        let loaded = 0;
+
+                        return [new Response(
+                            new ReadableStream({
+                              start(controller) {
+                                const reader = response.body.getReader();
+                                read();
+                                function read() {
+                                    reader.read().then(({done, value}) => {
+                                    document.getElementById("EnterPin").style.display = "none"
+                                    document.getElementById("pin-wrapper").style.display = "none"
+
+                                        if (done) {
+                                      controller.close();
+                                      document.getElementById("download-headline").innerHTML = "File downloaded"
+                                      document.getElementById("download-progress").style.display = "none"
+                                      document.getElementById("message").style.display = "flex"
+                                      return;
+                                    }
+
+                                    loaded += value.byteLength;
+                                    let contentDown = Math.round(loaded/total*100)+'%'
+                                    document.getElementById("download-headline").innerHTML = "Downloading file"
+                                    document.getElementById("download-progress").style.display = "flex"
+                                    document.getElementById("download-progress-bar-bar").style.width = contentDown
+                                    document.getElementById("download-server-progress").innerHTML = contentDown
+                                    controller.enqueue(value);
+                                    read();
+                                  }).catch(error => {
+                                    console.error(error);
+                                    controller.error(error)
+                                    })
+                                }
+                              }
+                            })
+                        ), response.headers.get("File-Name")];
+                        })
+                    .then(response=>{
+                        let res = response[0]
+                        if (res.status >= 200 && res.status <= 300){
+                            res.blob().then(blob=>{
+                                downloadBlob(blob, response[1])})
+                        }
+                    }).catch(err=>console.log(err));
+
+            }catch (e){
+                console.log(e)
+            }
+        }
+        function tryAgain() {
+            caret.style.width = '0px';
+            caret.style.left = '0px';
+            digits.forEach(el => {
+                el.dataset.digit = "";
+                el.classList.remove('shown');
+            });
+            mainEl.classList.remove('show-button');
+            inputLock = false;
+            currentIndex = 0;
+            prevLeft = 0;
+            prevX = 0;
+            document.getElementById("download-headline").innerHTML = "Download File"
+            document.getElementById("EnterPin").style.display = "flex"
+            document.getElementById("pin-wrapper").style.display = "block"
+            document.getElementById("message").style.display = "none"
+        }
+
+        button.onclick = submit;
+
+        function downloadBlob(blob, name) {
+          // Convert your blob into a Blob URL (a special url that points to an object in the browser's memory)
+          const blobUrl = URL.createObjectURL(blob);
+
+          // Create a link element
+          const link = document.createElement("a");
+
+          // Set link's href to point to the Blob URL
+          link.href = blobUrl;
+          link.download = name;
+
+          // Append link to the body
+          document.body.appendChild(link);
+
+          // Dispatch click event on the link
+          // This is necessary as link.click() does not work on the latest firefox
+          link.dispatchEvent(
+            new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            })
+          );
+
+          // Remove link from body
+          document.body.removeChild(link);
+        }
+    </script>
+    <style>
+        main{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <p id="EnterPin" class="text">Enter file pin:</p>
+        <div id="pin-wrapper" class="pin-wrapper">
+
+            <div class="digits">
+                <input type="text" class="focus">
+                <span class="digit" data-digit=""></span>
+                <span class="digit" data-digit=""></span>
+                <span class="digit" data-digit=""></span>
+                <span class="digit" data-digit=""></span>
+                <span class="digit" data-digit=""></span>
+                <span class="digit" data-digit=""></span>
+                <div class="caret blink" style="width: 0; left: 0;"></div>
+            </div>
+            <button class="submit">
+                <h2 class="text">Download</h2>
+            </button>
+        </div>
+
+        <div id="download-progress" style="display: none">
+            <div>
+                <div id="download-progress-bar">
+                    <div id="download-progress-bar-bar">
+
+                    </div>
+                </div>
+                <p id="download-server-progress">100%</p>
+            </div>
+        </div>
+
+        <div id="message">
+            <div id="message_text">
+                <p></p>
+            </div>
+            <div id="upload-buttons">
+                <button type="reset" onclick="tryAgain()" id="back">Go Back</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

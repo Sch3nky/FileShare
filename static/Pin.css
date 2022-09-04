@@ -1,0 +1,195 @@
+#message{
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 100%;
+  height: 250px;
+}
+#message button{
+  width: 50%;
+}
+
+@-webkit-keyframes blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+main{
+  display: flex!important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  position: inherit;
+}
+
+main .pin-wrapper {
+  width: 90%;
+
+  font-weight: 600;
+  color: var(--red);
+  font-size: 29px;
+  line-height: 1;
+
+  align-items: center;
+
+  background: var(--bacground);
+  border-radius: 10px;
+
+  position: relative;
+}
+
+main .pin-wrapper .digits {
+  height: 30px;
+
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+
+  padding: 18px 20px;
+}
+
+main .pin-wrapper .digits .digit {
+  position: relative;
+  display: block;
+  min-height: 1rem;
+  min-width: 1rem;
+}
+
+main .pin-wrapper .digits .digit::before {
+  content: attr(data-digit);
+  display: block;
+  opacity: 0;
+  transform: scale(0.6);
+  transition-duration: 0.2s;
+  transition-delay: 0.15s;
+
+}
+
+main .pin-wrapper .digits .digit[data-digit=""]::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 27px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--red);
+}
+
+main .pin-wrapper .digits .digit.shown::before {
+  opacity: 1;
+  transform: scale(1);
+  transition-duration: 0.45s;
+}
+
+main .pin-wrapper .digits .caret {
+  position: absolute;
+  width: 0;
+  height: inherit;
+  background: #F05A5D;
+  left: 0;
+}
+
+main .focus {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}
+
+main .focus:focus ~ .caret.blink {
+  -webkit-animation: blink 1s infinite alternate;
+          animation: blink 1s infinite alternate;
+}
+
+main .pin-wrapper .submit {
+  height: 50%;
+  width: 100%;
+
+  position: absolute;
+  background: var(--red);
+
+  top: 100%;
+  left: 0%;
+
+  border: none;
+  z-index: -1;
+
+  transform: translateY(-110%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0px 0px 10px 10px;
+}
+
+.show-button {
+  transform: translateY(0px);
+}
+
+main.show-button .pin-wrapper .submit {
+  transform: none;
+  transition-duration: 0.6s;
+  transition-property: all;
+  color: var(--text);
+  text-decoration: none;
+}
+main.show-button .pin-wrapper .submit:hover {
+  background: #F05A5D;
+}
+
+main.show-button .pin-wrapper{
+  border-radius: 10px 10px 0px 0px
+}
+
+main #download-progress{
+  position: relative;
+  height: 400px;
+  width: 70%;
+
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+main #download-progress > div{
+  width: 100%;
+  text-align: center;
+}
+
+main #download-progress #download-progress-bar{
+  width: 100%;
+  height: 8px;
+  border: 2px solid var(--red);
+  border-radius: 10px;
+}
+
+main #download-progress #download-progress-bar-bar{
+  width: 0%;
+  height: 8px;
+  background-color: var(--red);
+}
+
+main #download-progress p{
+  font-size: 17px;
+}
+
+

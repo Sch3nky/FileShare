@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Easy way to share your files.">
+    <meta name="keywords" content="FileShare, Share, Send, File, Files">
+    <meta name="author" content="Jakub Schenk">
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WZCC7JF');</script>
+    <!-- End Google Tag Manager -->
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9703171714000498"
+     crossorigin="anonymous"></script>
+
+    <title>{{ name }}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for("static", filename="Index.css") }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename="Fonts.css") }}">
+
+    <link rel="shortcut icon" href="{{ url_for("static", filename="Images/favicon.ico") }}" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="{{ url_for("static", filename="Images/apple-touch-icon.png") }}" />
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for("static", filename="Images/apple-touch-icon-57x57.png") }}" />
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ url_for("static", filename="Images/apple-touch-icon-72x72.png") }}" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ url_for("static", filename="Images/apple-touch-icon-76x76.png") }}" />
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ url_for("static", filename="Images/apple-touch-icon-114x114.png") }}" />
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ url_for("static", filename="Images/apple-touch-icon-120x120.png") }}" />
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for("static", filename="Images/apple-touch-icon-144x144.png") }}" />
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ url_for("static", filename="Images/apple-touch-icon-152x152.png") }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for("static", filename="Images/apple-touch-icon-180x180.png") }}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        //variables
+        var pin = ""
+        var canSend = false
+
+        //copy pin
+        function copyPin() {
+              /* Copy the text inside the text field */
+              navigator.clipboard.writeText(pin);
+        }
+
+        //go to main page button used when error or when pin is displayed
+        function back(){
+            document.getElementById("upload-data-content").style.display="none";
+            document.getElementById("main").style.display="flex";
+            document.getElementById("description").style.display="block";
+        }
+
+        //resize check so there is no error
+        function resize(){
+            if (window.innerWidth > 1000){
+                document.getElementById('download').style.transitionDuration = '0s'
+                document.getElementById('Upload').style.transitionDuration = '0s'
+                document.getElementById('download').style.transform = 'translateX(0)'
+                document.getElementById('Upload').style.transform = 'translateX(0)'
+            }
+            if (window.innerWidth < 1000){
+                if (document.getElementById('content-switch-ball').style.transform === 'translateX(37px)'){
+                    document.getElementById('download').style.transitionDuration = '0'
+                    document.getElementById('Upload').style.transitionDuration = '0'
+                    document.getElementById('content-switch-ball').style.transform = 'translateX(37px)'
+                    document.getElementById('download').style.transform = 'translateX(0)'
+                    document.getElementById('Upload').style.transform = 'translateX(150%)'
+                    document.getElementById('toggle-rotate').style.transform = 'rotate(180deg)'
+
+                }else{
+                    document.getElementById('download').style.transitionDuration = '0'
+                    document.getElementById('Upload').style.transitionDuration = '0'
+                    document.getElementById('content-switch-ball').style.transform = 'translateX(-37px)'
+                    document.getElementById('toggle-rotate').style.transform = 'rotate(0deg)'
+                    document.getElementById('download').style.transform = 'translateX(-150%)'
+                    document.getElementById('Upload').style.transform = 'translateX(0)'
+                }
+            }
+        }
+
+        //listeners
+        window.addEventListener('resize', resize);
+
+        window.addEventListener("dragover", event => {
+            document.getElementById("main").style.opacity = "80%"
+            if(event.target.id==="file-upload"){
+                document.getElementById("file-upload-UI").style.background = "rgba(184, 52, 40, 0.1)"
+            }
+            else{
+                document.getElementById("file-upload-UI").style.background = "none"
+            }
+        })
+
+        window.addEventListener("dragleave", event => {
+            if (event.target.id === ""){
+                document.getElementById("main").style.opacity = "100%"
+                document.getElementById("file-upload-UI").style.background = "none"
+                document.getElementById("file-upload-UI").style.opacity = "100%"
+            }
+
+        })
+
+        //toggle between download and upload
+        function toggle() {
+            if (document.getElementById('content-switch-ball').style.transform === 'translateX(37px)'){
+                document.getElementById('download').style.transitionDuration = '1s'
+                document.getElementById('Upload').style.transitionDuration = '1s'
+                document.getElementById('content-switch-ball').style.transform = 'translateX(-37px)'
+                document.getElementById('toggle-rotate').style.transform = 'rotate(0deg)'
+                document.getElementById('download').style.transform = 'translateX(-150%)'
+                document.getElementById('Upload').style.transform = 'translateX(0)'
+            }else{
+                document.getElementById('download').style.transitionDuration = '1s'
+                document.getElementById('Upload').style.transitionDuration = '1s'
+                document.getElementById('content-switch-ball').style.transform = 'translateX(37px)'
+                document.getElementById('download').style.transform = 'translateX(0)'
+                document.getElementById('Upload').style.transform = 'translateX(150%)'
+                document.getElementById('toggle-rotate').style.transform = 'rotate(180deg)'
+            }
+        }
+
+        $(document).ready(function(){
+            $("#pin-input").load("/pinUI");
+
+            checkAdBlocker().then((isBlocked) => {
+                if (isBlocked) {
+                    // ad block is on
+                    document.getElementById("nav").style.display = "none"
+                    document.getElementById("bottom-nav").style.display = "none"
+
+                    document.getElementById("nav").innerHTML = ""
+                    document.getElementById("bottom-nav").innerHTML = ""
+                    document.getElementById("main-content").innerHTML = ""
+                    document.getElementById("secondary-content").innerHTML = ""
+
+                    document.getElementById("adblock-detect").style.display = "flex"
+                } else {
+                    // ad block is off
+                    //check if not different page
+                    if (sessionStorage.getItem("cPage") !== null) {
+                        $("#secondary-content").load(sessionStorage.getItem("cPage"));
+                        document.getElementById("main-content").style.display = "none"
+                        document.getElementById("secondary-content").style.display = "block"
+                        document.getElementById("bottom-nav").style.margin = 0
+                    } else {
+                        document.getElementById("main-content").style.display = "block"
+                        document.getElementById("secondary-content").style.display = "none"
+                        document.getElementById("bottom-nav").style.margin = 0
+                    }
+                }
+            });
+
+            //File check and file data display
+            $('#file-upload').change(function () {
+                var file = document.getElementById('file-upload').files[0];
+                let filesize = file.size
+
+                if (Math.round(filesize /1024 /1024 /1024) > 0){
+                    filesize = "File size: <span>" +Math.round(filesize /1024 /1024 /1024)+ " GB</span>"
+                }else if (Math.round(filesize /1024 /1024) > 0){
+                    filesize = "File size: <span>" +Math.round(filesize /1024 /1024)+ " MB</span>"
+                }else {
+                    filesize = "File size: <span>" +Math.round(filesize /1024 )+ " KB</span>"
+                }
+
+                if (Math.round(file.size /1024 /1024 /1024) < 20){
+                    canSend = true
+                    document.getElementById("file-upload-label").style.display = "none"
+                    document.getElementById("file-upload").style.display = "none"
+                    document.getElementById("uploaded-file").style.display = "block"
+                    document.getElementById("file-name").innerHTML = file.name
+                    document.getElementById("file-size").innerHTML = filesize
+                }else {
+                    canSend = false
+                    document.getElementById("file-upload-label").style.display = "none"
+                    document.getElementById("file-upload").style.display = "none"
+                    document.getElementById("uploaded-file").style.display = "block"
+                    document.getElementById("file-name").innerHTML = file.name
+                    document.getElementById("file-size").innerHTML = filesize
+                    document.getElementById("Upload-message").style.display = "block"
+                }
+            });
+
+            //button window change actions
+            $("#delete").click(function (){
+                document.getElementById("file-upload-label").style.display = "flex"
+                document.getElementById("file-upload").style.display = "block"
+                document.getElementById("uploaded-file").style.display = "none"
+                document.getElementById('file-upload').value = ""
+            });
+
+            $("#bugReport").click(function (){
+                $("#secondary-content").load("/contact-Describe_where_and_how_did_you_encounter_the_problem-Report_Bug-0-1");
+                document.getElementById("main-content").style.display = "none"
+                document.getElementById("secondary-content").style.display = "block"
+                sessionStorage.setItem("cPage", "/contact-Describe_where_and_how_did_you_encounter_the_problem-Report_Bug-0-1")
+            });
+
+            $("#contactUs").click(function (){
+                $("#secondary-content").load("/contact-Enter_your_message-Contact_Us-1-1");
+                document.getElementById("main-content").style.display = "none"
+                document.getElementById("secondary-content").style.display = "block"
+                sessionStorage.setItem("cPage", "/contact-Enter_your_message-Contact_Us-1-1")
+            });
+
+            $("#help").click(function (){
+                $("#secondary-content").load("/help");
+                document.getElementById("main-content").style.display = "none"
+                document.getElementById("secondary-content").style.display = "block"
+                sessionStorage.setItem("cPage", "/help")
+            });
+
+            $("#helpB").click(function (){
+                $("#secondary-content").load("/help");
+                document.getElementById("main-content").style.display = "none"
+                document.getElementById("secondary-content").style.display = "block"
+                sessionStorage.setItem("cPage", "/help")
+            });
+
+            $("#title").click(function (){
+                document.getElementById("main-content").style.display = "block"
+                document.getElementById("secondary-content").style.display = "none"
+                document.getElementById("secondary-content").innerHTML = ""
+                sessionStorage.removeItem("cPage")
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        //send file to server
+        async function sendFile(){
+            //check if file can be send
+            if (canSend){
+                //forms data for send
+                let formData = new FormData();
+                let file = document.getElementById("file-upload").files[0];
+                if (document.getElementById("file-upload").files.length === 0) {
+                    alert('please choose a file')
+                    return
+                }
+
+                formData.set("file", file);
+                //sends file
+                try {
+                    axios.request({
+                        method: "POST",
+                        url: "/upload",
+                        data: formData,
+                        //progress status
+                        onUploadProgress: (progress) => {
+                            let progressPercentile = progress.loaded/(progress.total/100);
+                            document.getElementById("main").style.display="none";
+                            document.getElementById("description").style.display="none";
+                            document.getElementById("upload-progress").style.display="flex";
+                            document.getElementById("progress-bar-bar").style.width=progressPercentile+"%";
+                            document.getElementById("upload-server-progress").innerHTML = Math.round(progressPercentile)+"%";
+
+                        }
+                    }).then(data => {
+                        //displays file pin
+                        let m = data["data"]
+                        pin = m["pin"].toString()
+                        document.getElementById("upload-progress").style.display="none";
+                        document.getElementById("upload-data-content").style.display="flex";
+                        document.getElementById("pin").innerHTML = "<span>"+pin.charAt(0)+"</span><span>"+pin.charAt(1)+"</span><span>"+pin.charAt(2)+"</span><span>"+pin.charAt(3)+"</span><span>"+pin.charAt(4)+"</span><span>"+pin.charAt(5)+"</span>";
+                    }).catch(error =>{
+                        back()
+                        alert(error.message)
+                    })
+                } catch(e) {
+                   console.log('Error:', e);
+                }
+            }
+        }
+    </script>
+
+    <!--ad handler script-->
+    <script>
+        async function checkAdBlocker() {
+            let isBlocked;
+
+            async function tryRequest() {
+                try {
+                    return fetch(
+                        new Request("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+                            method: 'HEAD',
+                            mode: 'no-cors'
+                        }))
+                        .then(function(response) {
+                            // Google Ads request succeeded, so likely no ad blocker
+                            isBlocked = false;
+                            return isBlocked;
+                        }).catch(function(e) {
+                            // Request failed, likely due to ad blocker
+                            isBlocked = true;
+                            return isBlocked;
+                        });
+                } catch (error) {
+                    // fetch API error; possible fetch not supported (old browser)
+                    // Marking as a blocker since there was an error and so
+                    // we can prevent continued requests when this function is run
+                    console.log(error);
+                    isBlocked = true;
+                    return isBlocked;
+                }
+            }
+
+            return isBlocked !== undefined ? isBlocked : await tryRequest();
+        }
+    </script>
+
+</head>
+<body id="body" class="text">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WZCC7JF"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div id="nav">
+        <h1 id="title" class="headline">{{ name }}</h1>
+        <a id="help" class="headline"> Help </a>
+    </div>
+
+    <div id="main-content" style="display: none; min-height: 100vh">
+        <div id="description"><p class="headline">Share your files with anyone anywhere.</p></div>
+        <div id="main">
+            <div>
+                <button id="content-switch" onclick="toggle()">
+                    <div id="content-switch-ball">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <g>
+                                <path d="M11 40C10.2 40 9.5 39.7 8.9 39.1C8.3 38.5 8 37.8 8 37V29.85H11V37H37V29.85H40V37C40 37.8 39.7 38.5 39.1 39.1C38.5 39.7 37.8 40 37 40H11Z" fill="black"></path>
+                                <g id="toggle-rotate"><path d="M22.15 11.8V30.35H25.15V11.8L31.15 17.8L33.3 15.65L23.65 6L14 15.65L16.15 17.8L22.15 11.8Z" fill="black"></path> </g>
+                            </g>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <div id="content">
+                <div id="Upload">
+                    <h2 class="headline">Upload file</h2>
+                    <form id="file-upload-form" onsubmit="sendFile(); return false">
+
+                        <input id="file-upload" type="file">
+                        <label id="file-upload-label" for="file-upload">
+                            <div id="file-upload-UI">
+                                <p>Drag and drop or click this area to upload files</p>
+                            </div>
+                        </label>
+
+                        <div id="uploaded-file">
+                            <div id="file">
+                                <p id="file-name">name</p>
+                                <p id="file-size">name</p>
+                            </div>
+                            <div>
+                                <p id="Upload-message">File size limit is 20GB</p>
+                                <div id="upload-buttons">
+                                    <button type="reset" id="delete">Delete</button>
+                                    <button type="submit">Upload</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+                <div id="divider">
+
+                </div>
+                <div id="download">
+                    <h2 id="download-headline" class="headline">Download file</h2>
+                    <div>
+                        <div id="pin-input">
+
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="upload-progress" >
+            <div>
+                <h2>Uploading file</h2>
+                <div>
+                    <div id="progress-bar">
+                        <div id="progress-bar-bar">
+
+                        </div>
+                    </div>
+                    <p id="upload-server-progress">100%</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="upload-data-content" class="info-div">
+            <div>
+                <h2 class="headline">
+                    File uploaded
+                </h2>
+
+                <p>
+                    Your file will be available for 10 minutes. Use this pin to download your file.
+                </p>
+
+                <div id="pin">no
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                </div>
+
+                <div id="upload-buttons">
+                    <button onclick="back()">
+                        Close
+                    </button>
+
+                    <button onclick="copyPin()">
+                        Copy Pin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="secondary-content" style="display: none; min-height: 100vh; height: fit-content">
+
+    </div>
+
+    <div id="adblock-detect" style="display: none;">
+        <h1 class="headline">AdBlock Detected</h1>
+        <p class="text">Please disable your adblock to continue. This service is completely free and the only way we make money is from ads.</p>
+        <a class="text" href="{{ url_for("main") }}">Refresh Page</a>
+    </div>
+
+    <div id="bottom-nav" style="margin-top: 100vh">
+        <div id="bottom-content">
+            <div id="links">
+                <a href="{{ url_for("main", data="contactus") }}" id="helpB">Get help</a>
+                <a href="{{ url_for("main", data="contactus") }}" id="contactUs">Contact us</a>
+                <a href="{{ url_for("main", data="contactus") }}" id="bugReport">Report bug</a>
+                <a href="{{ url_for("main", data="cookies") }}">Cookies</a>
+                <a href="{{ url_for("main", data="termsofuse") }}">Terms of Use</a>
+                <a href="{{ url_for("main", data="privacypolicy") }}">Privacy Policy</a>
+                <a href="{{ url_for("main", data="aboutus") }}">About Us</a>
+            </div>
+
+            <div id="newsletter">
+                <form onsubmit="return false;">
+                    <h2>
+                        Newsletter
+                    </h2>
+                    <input id="email-newsletter" type="email" placeholder="Enter your email">
+                    <input id="submit-newsletter" type="submit" value="Sign Up">
+                </form>
+            </div>
+        </div>
+        <div>
+            <p id="copyright">© 2022 SoffApps</p>
+        </div>
+    </div>
+
+    {% if notcookieconsent %}
+        <div id="cookies">
+            <h2 class="headline">We use cookies</h2>
+            <p class="text">We use third-party cookies to personalize content, ads, and analyze site traffic. <a href="{{ url_for("main", data="cookies") }}">Learn more</a></p>
+            <div id="upload-buttons">
+                    <button onclick="document.getElementById(`cookies`).style.display=`none`">
+                        Decline
+                    </button>
+
+                    <button onclick="location.href=`{{ url_for("set_cookies", name="cookieConcest", value="1") }}`">
+                        Allow cookies
+                    </button>
+                </div>
+        </div>
+    {% endif %}
+</body>
+</html>

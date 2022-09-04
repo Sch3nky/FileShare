@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="ContactUs.css") }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename="Fonts.css") }}">
+</head>
+<body>
+    <div id="maincontact" style="opacity: 0; {% if fscreen %}height: calc(100vh - 250px);margin-top: 250px;{% else %}height: fit-content;margin: 0;{% endif %}">
+        <h2 class="headline">
+            {{ contactPageName }}
+        </h2>
+        <form onsubmit="resetMain()" action="{{ url_for("contact", type=contactPageName) }}" method="POST">
+            <div>
+                {% if emailR %}
+                <input class="text" type="email" name="email" placeholder="Enter your email" required>
+                {% endif %}
+                <textarea class="text" name="text" placeholder="{{ messageplaceholder }}" required></textarea>
+            </div>
+            <div>
+                <input type="submit" value="Send">
+            </div>
+        </form>
+    </div>
+</body>
+</html>

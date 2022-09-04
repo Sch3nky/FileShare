@@ -1,0 +1,23 @@
+{
+  "faq": [
+    {
+      "question": "What is FileShare used for?",
+      "answer": "FileShare is used for file transfer. You can transfer any file from one device to another complete anonymously. File will stay on our servers and then it will be automatically deleted."
+    },
+    {
+      "question": "How long will the file stay available to download?",
+      "answer": "File will be avalible for 10 minutes."
+    },
+    {
+      "question": "What files can I share?",
+      "answer": "You can share any file up to 20GB in size."
+    },
+    {
+      "question": "Is there a limit to the size of a file?",
+      "answer": "Yes, limit is 20GB per file."
+    }
+  ],
+  "askedQuestions": [
+
+  ]
+}

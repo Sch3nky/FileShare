@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+User-agent: *
+Disallow: /termsofuse
+Disallow: /cookies
+Disallow: /privacypolicy
+Disallow: /aboutus
+Disallow: /set_cookies/
