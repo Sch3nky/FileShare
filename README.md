@@ -1,4 +1,4 @@
 # FileShare
-File sharing website - fsharely.com
+File sharing website - https://fsharely.com
 
 To launch run app.py
